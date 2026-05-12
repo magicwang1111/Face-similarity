@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "face-lora-eval"
+version = "0.1.0"
+description = "Batch face similarity evaluation for LoRA checkpoint outputs."
+requires-python = ">=3.10"
+dependencies = [
+  "Cython>=3.0.0",
+  "insightface>=0.7.3",
+  "onnxruntime>=1.17.0",
+  "opencv-python-headless>=4.9.0",
+  "Pillow>=10.0.0",
+  "numpy>=1.26.0",
+  "matplotlib>=3.8.0",
+  "PyYAML>=6.0.1",
+  "tqdm>=4.66.0",
+]
+
+[project.optional-dependencies]
+test = ["pytest>=8.0.0"]
+
+[tool.setuptools.packages.find]
+where = ["src"]

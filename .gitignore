@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+reports/
+
+# Local model files are copied here for convenience, but should not be committed.
+models/**/*.onnx
+models/**/*.pth
+models/**/*.zip
+
