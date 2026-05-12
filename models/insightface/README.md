@@ -23,3 +23,8 @@ xcopy /E /I /Y D:\ComfyUI\models\insightface\models\buffalo_l E:\Face-similarity
 xcopy /E /I /Y D:\ComfyUI\models\insightface\models\antelopev2 E:\Face-similarity\models\insightface\models\antelopev2
 ```
 
+LVFace uses a separate model path:
+
+```text
+models/lvface/LVFace-B_Glint360K/LVFace-B_Glint360K.onnx
+```

@@ -8,4 +8,4 @@ reports/
 models/**/*.onnx
 models/**/*.pth
 models/**/*.zip
-
+models/**/.hf_cache/

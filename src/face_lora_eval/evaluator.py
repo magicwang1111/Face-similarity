@@ -12,7 +12,7 @@ except ImportError:
 
 from .config import EvalConfig
 from .csv_io import write_csv
-from .face_model import InsightFaceEmbedder, l2_normalize
+from .face_model import create_embedder, l2_normalize
 from .manifest import ImageRecord, build_manifest
 from .scoring import RankingWeights, aggregate_lora_scores
 
@@ -94,12 +94,7 @@ def run_evaluation(config: EvalConfig) -> EvaluationSummary:
     )
     write_csv(config.output_dir / "manifest.csv", manifest)
 
-    embedder = InsightFaceEmbedder(
-        root=Path(config.insightface["root"]),
-        model_name=str(config.insightface["model_name"]),
-        det_size=int(config.insightface["det_size"]),
-        providers=list(config.insightface["providers"]),
-    )
+    embedder = create_embedder(config)
     embedder.prepare()
 
     reference_records = [record for record in manifest if record.role == "reference"]

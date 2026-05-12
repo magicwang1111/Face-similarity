@@ -9,11 +9,13 @@ from .path_utils import normalize_platform_path
 
 @dataclass(frozen=True)
 class EvalConfig:
+    backend: str
     person_id: str
     reference_root: Path
     candidate_root: Path
     output_dir: Path
     insightface: dict[str, Any]
+    lvface: dict[str, Any]
     reference_quality: dict[str, float]
     ranking: dict[str, float]
     limit_reference: int | None = None
@@ -92,11 +94,16 @@ def _load_yaml(path: Path) -> dict[str, Any]:
 def load_config(path: Path) -> EvalConfig:
     raw = _load_yaml(path)
 
+    backend = str(raw.get("backend", "insightface"))
     insightface = raw.get("insightface") or {}
+    lvface = raw.get("lvface") or {}
     reference_quality = raw.get("reference_quality") or {}
     ranking = raw.get("ranking") or {}
+    default_providers = ["CPUExecutionProvider"]
+    insightface_providers = list(insightface.get("providers") or default_providers)
 
     return EvalConfig(
+        backend=backend,
         person_id=str(raw.get("person_id", "person")),
         reference_root=normalize_platform_path(raw["reference_root"]),
         candidate_root=normalize_platform_path(raw["candidate_root"]),
@@ -105,7 +112,17 @@ def load_config(path: Path) -> EvalConfig:
             "root": normalize_platform_path(insightface.get("root", "~/.insightface")),
             "model_name": insightface.get("model_name", "buffalo_l"),
             "det_size": int(insightface.get("det_size", 1024)),
-            "providers": list(insightface.get("providers") or ["CPUExecutionProvider"]),
+            "providers": insightface_providers,
+        },
+        lvface={
+            "model_path": normalize_platform_path(
+                lvface.get(
+                    "model_path",
+                    "models/lvface/LVFace-B_Glint360K/LVFace-B_Glint360K.onnx",
+                )
+            ),
+            "providers": list(lvface.get("providers") or insightface_providers),
+            "input_size": int(lvface.get("input_size", 112)),
         },
         reference_quality={
             "min_det_score": float(reference_quality.get("min_det_score", 0.50)),

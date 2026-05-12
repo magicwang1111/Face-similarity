@@ -36,6 +36,33 @@ set PYTHONPATH=src
 D:\miniconda3\Scripts\conda.exe run -n comfyui python -m face_lora_eval evaluate --config configs\xiaohan_20260507.yaml
 ```
 
+## LVFace Evaluation
+
+The project also supports an independent LVFace-B_Glint360K ONNX evaluation pipeline. InsightFace still handles face detection and 5-point alignment; LVFace computes the final identity embedding.
+
+Download the official LVFace ONNX model:
+
+```bash
+python scripts/download_lvface.py
+```
+
+Then run the LVFace config:
+
+```bash
+python -m face_lora_eval evaluate --config configs/xiaohan_20260507_lvface.yaml
+```
+
+Windows ComfyUI conda environment:
+
+```bat
+cd /d E:\Face-similarity
+set PYTHONPATH=src
+D:\miniconda3\Scripts\conda.exe run -n comfyui python scripts\download_lvface.py
+D:\miniconda3\Scripts\conda.exe run -n comfyui python -m face_lora_eval evaluate --config configs\xiaohan_20260507_lvface.yaml
+```
+
+LVFace model source: `bytedance-research/LVFace`, file `LVFace-B_Glint360K/LVFace-B_Glint360K.onnx`. Follow the official model card/license; it is intended for non-commercial research use.
+
 Useful smoke test:
 
 ```bash
@@ -62,7 +89,7 @@ The ONNX model files are ignored by git because they are hundreds of MB. See `mo
 
 ## GPU Note
 
-The code requests `CUDAExecutionProvider` first and falls back to CPU. In the tested `comfyui` conda environment, PyTorch CUDA sees the RTX 4090 D, but `onnxruntime` currently exposes only CPU/Azure providers. Install a matching `onnxruntime-gpu` build in that environment to enable GPU inference.
+Both InsightFace and LVFace configs request `CUDAExecutionProvider` first and fall back to CPU. In the tested `comfyui` conda environment, PyTorch CUDA sees the RTX 4090 D, but `onnxruntime` currently exposes only CPU/Azure providers. Install a matching `onnxruntime-gpu` build in that environment to enable GPU inference.
 
 ## Privacy Boundary
 

@@ -21,8 +21,10 @@ def build_parser() -> argparse.ArgumentParser:
     evaluate.add_argument("--candidate-root", type=Path)
     evaluate.add_argument("--output-dir", type=Path)
     evaluate.add_argument("--person-id")
+    evaluate.add_argument("--backend", choices=("insightface", "lvface_onnx"))
     evaluate.add_argument("--insightface-root", type=Path)
     evaluate.add_argument("--model-name")
+    evaluate.add_argument("--lvface-model-path", type=Path)
     evaluate.add_argument("--det-size", type=int)
     evaluate.add_argument(
         "--provider",
@@ -53,6 +55,8 @@ def apply_overrides(config: EvalConfig, args: argparse.Namespace) -> EvalConfig:
             updates[field_name] = normalize_platform_path(value)
     if args.person_id:
         updates["person_id"] = args.person_id
+    if args.backend:
+        updates["backend"] = args.backend
 
     insightface = dict(config.insightface)
     if args.insightface_root is not None:
@@ -64,6 +68,13 @@ def apply_overrides(config: EvalConfig, args: argparse.Namespace) -> EvalConfig:
     if args.providers:
         insightface["providers"] = args.providers
     updates["insightface"] = insightface
+
+    lvface = dict(config.lvface)
+    if args.lvface_model_path is not None:
+        lvface["model_path"] = normalize_platform_path(args.lvface_model_path)
+    if args.providers:
+        lvface["providers"] = args.providers
+    updates["lvface"] = lvface
 
     if args.limit_reference is not None:
         updates["limit_reference"] = args.limit_reference
