@@ -1,0 +1,31 @@
+backend: "lvface_onnx"
+person_id: xiaohan
+reference_root: "/mnt/d/测试素材/0417-人脸采集小韩"
+candidate_root: "/mnt/e/批量测试输出/20260506人脸替换测试"
+output_dir: "/mnt/e/Face-similarity/reports/xiaohan_20260506_lvface"
+
+# InsightFace is still used for detection and 5-point alignment.
+insightface:
+  root: "/mnt/e/Face-similarity/models/insightface"
+  model_name: "buffalo_l"
+  det_size: 1024
+  providers:
+    - "CUDAExecutionProvider"
+    - "CPUExecutionProvider"
+
+lvface:
+  model_path: "/mnt/e/Face-similarity/models/lvface/LVFace-B_Glint360K/LVFace-B_Glint360K.onnx"
+  input_size: 112
+  providers:
+    - "CUDAExecutionProvider"
+    - "CPUExecutionProvider"
+
+reference_quality:
+  min_det_score: 0.50
+  min_face_area_ratio: 0.001
+
+ranking:
+  mean_weight: 0.45
+  median_weight: 0.25
+  p25_weight: 0.20
+  fail_rate_weight: 0.10

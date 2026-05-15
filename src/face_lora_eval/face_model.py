@@ -7,6 +7,10 @@ from typing import Any
 from .image_io import load_bgr_array
 
 
+_ORT_DLLS_PRELOADED = False
+_DLL_DIRECTORY_HANDLES: list[Any] = []
+
+
 @dataclass(frozen=True)
 class FaceQuality:
     det_score: float
@@ -34,9 +38,50 @@ def l2_normalize(vector: Any):
     return vector / norm
 
 
+def preload_onnxruntime_dlls() -> None:
+    global _ORT_DLLS_PRELOADED
+    if _ORT_DLLS_PRELOADED:
+        return
+
+    try:
+        import os
+        import site
+
+        add_dll_directory = getattr(os, "add_dll_directory", None)
+        if add_dll_directory is not None:
+            candidates: list[Path] = []
+            for site_dir in [*site.getsitepackages(), site.getusersitepackages()]:
+                nvidia_dir = Path(site_dir) / "nvidia"
+                candidates.extend(nvidia_dir.glob("*/bin"))
+            for dll_dir in candidates:
+                if dll_dir.exists():
+                    _DLL_DIRECTORY_HANDLES.append(add_dll_directory(str(dll_dir)))
+    except Exception as exc:
+        print(f"Warning: failed to add NVIDIA DLL directories: {exc}")
+
+    try:
+        import onnxruntime as ort
+    except ImportError:
+        return
+
+    preload_dlls = getattr(ort, "preload_dlls", None)
+    if preload_dlls is None:
+        _ORT_DLLS_PRELOADED = True
+        return
+
+    try:
+        preload_dlls()
+        preload_dlls(directory="")
+    except Exception as exc:
+        print(f"Warning: failed to preload ONNX Runtime CUDA/cuDNN DLLs: {exc}")
+    finally:
+        _ORT_DLLS_PRELOADED = True
+
+
 def resolve_onnx_providers(requested: list[str], available: list[str] | None = None) -> list[str]:
     if available is None:
         try:
+            preload_onnxruntime_dlls()
             import onnxruntime as ort
         except ImportError:
             return requested
